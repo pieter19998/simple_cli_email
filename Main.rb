@@ -1,6 +1,5 @@
 require 'tty-cursor'
 require "tty-prompt"
-require "tty-link"
 require 'pathname'
 require_relative 'ui/Ui'
 

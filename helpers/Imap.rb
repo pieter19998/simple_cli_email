@@ -35,10 +35,25 @@ class Imap
     message_id
   end
 
+  def check_for_attachements(message_id)
+    body = @imap.fetch(message_id, 'BODY').first.attr['BODY']
+
+    puts "#{body.parts[1].media_type}"
+    puts "#{body.parts[1].param['NAME']}"
+    puts "#{body.parts[1].subtype}"
+    puts "#{(body.parts[1].size) / 1024} kb"
+
+    unless (body.parts[1].size) / 1024 == 0
+      return true
+    end
+
+    false
+  end
+
   def read_attachement(message_id)
     size = @imap.fetch(message_id, 'RFC822.SIZE').first.attr['RFC822.SIZE']
-    if size < 8192
-    puts "msg '#{message_id}' appears to meet size criteria, downloading"
+    if size < 81920
+      puts "msg '#{message_id}' appears to meet size criteria, downloading"
     end
     body = @imap.fetch(message_id, 'BODY').first.attr['BODY']
     i = 1

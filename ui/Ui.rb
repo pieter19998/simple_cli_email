@@ -42,7 +42,7 @@ class Menu
     spinner = TTY::Spinner.new("[:spinner] Loading ...", format: :pulse_2)
     spinner.auto_spin
     settings = @file.get_settings
-    @imap.login(settings[:host],settings[:port],settings[:ssl],settings[:username],settings[:password])
+    @imap.login(settings[:host], settings[:port], settings[:ssl], settings[:username], settings[:password])
     mail = @imap.get_mail
     spinner.stop(" ✔ ")
     mail.push({"Back" => -> do
@@ -50,8 +50,15 @@ class Menu
     end})
     subject = @prompt.select("Mails:", mail)
     subject = subject.split("\t")
-    # @imap.read_mail(subject[1])
-    puts @imap.read_attachement(@imap.read_mail(subject[1]))
+
+    message_id = @imap.read_mail(subject[1])
+    if @imap.check_for_attachements(message_id)
+      if @prompt.yes?("Download attachement?")
+        @imap.read_attachement(message_id)
+        inbox
+      end
+    end
+    puts "press enter to go back to inbox"
     gets
     inbox
   end
@@ -70,7 +77,7 @@ class Menu
 
     settings = @file.get_settings
 
-    email = @smtp.email(result,settings[:username])
+    email = @smtp.email(result, settings[:username])
     @smtp.send_mail(settings[:host], 587, settings[:host],
                     settings[:username], settings[:password],
                     "#{email}",
@@ -87,7 +94,7 @@ class Menu
       key(:username).ask('username?')
       key(:password).ask('password?')
     end
-    @file.set_settings(settings[:host],settings[:port],settings[:ssl],settings[:username],settings[:password])
+    @file.set_settings(settings[:host], settings[:port], settings[:ssl], settings[:username], settings[:password])
     menu
   end
 end
